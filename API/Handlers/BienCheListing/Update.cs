@@ -44,6 +44,7 @@ public class Update
             }
 
             bienche.LinhVucId = res.LinhVucId ?? throw new ArgumentException("LinhVucId is required.");
+            bienche.KhoiId = res.KhoiId;
             bienche.TenDonVi = res.TenDonVi;
             bienche.SLVienChuc = res.SLVienChuc;
             bienche.SLHopDong = res.SLHopDong;
