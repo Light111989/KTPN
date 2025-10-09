@@ -1,16 +1,25 @@
 import React, { useState, useEffect } from 'react'
-import { createDonVi } from '../components/settings/_requests'
+import { createDonVi, updateDonVi, fetchDonVis, fetchKhois, fetchLinhVucs } from '../components/settings/_requests'
 import { Modal } from 'bootstrap'
 
 type Props = {
+  mode: 'add' | 'edit'
   onSubmitSuccess: () => void // callback để refresh danh sách
   onSubmit: (data: any) => Promise<void>; // ⚡ bắt buộc phải có
+  initialData?: any
+  linhVucs: any[]
+  khois: any[]
 }
 
-const AddUnitModal: React.FC<Props> = ({ onSubmit, onSubmitSuccess }) => {
+
+const AddUnitModal: React.FC<Props> = ({ mode, initialData, linhVucs, khois, onSubmitSuccess }) => {
   const initialForm = {
+    id: '',
     tenDonVi: '',
     linhVuc: '',
+    linhVucId: '',
+    khoiId: '',
+    khoi: '',
     slVienChuc: 0,
     slHopDong: 0,
     slHopDongND: 0,
@@ -21,23 +30,35 @@ const AddUnitModal: React.FC<Props> = ({ onSubmit, onSubmitSuccess }) => {
     slNhanVien: 0,
   }
   const [formData, setFormData] = useState(initialForm)
-  const handleAdd = async () => {
-    try {
-      await createDonVi(formData)
-      alert('Thêm đơn vị thành công!')
-      setFormData(initialForm)
 
-      // Ẩn modal
+  useEffect(() => {
+    if (mode === 'edit' && initialData) {
+      setFormData(initialData) // 🟢 set luôn data vào form
+    } else if (mode === 'add') {
+      setFormData(initialForm) // reset khi add
+    }
+  }, [mode, initialData])
+
+  const handleSave = async () => {
+    try {
+      if (mode === 'add') {
+        await createDonVi(formData)
+        alert('Thêm đơn vị thành công!')
+      } else {
+        await updateDonVi(formData.id, formData)
+        alert('Cập nhật đơn vị thành công!')
+      }
+
       const modalEl = document.getElementById('kt_modal_1')
       if (modalEl) {
         const modal = Modal.getInstance(modalEl) || new Modal(modalEl)
         modal.hide()
       }
 
-      onSubmitSuccess() // refresh danh sách
+      onSubmitSuccess()
     } catch (err: any) {
       console.error(err)
-      alert('Thêm đơn vị thất bại! ' + (err.response?.data?.title || err.message))
+      alert((mode === 'add' ? 'Thêm' : 'Cập nhật') + ' thất bại: ' + err.message)
     }
   }
 
@@ -56,6 +77,7 @@ const AddUnitModal: React.FC<Props> = ({ onSubmit, onSubmitSuccess }) => {
         setFormData(initialForm)
       })
     }
+
   }, [])
 
   return (
@@ -63,7 +85,7 @@ const AddUnitModal: React.FC<Props> = ({ onSubmit, onSubmitSuccess }) => {
       <div className="modal-dialog modal-lg">
         <div className="modal-content">
           <div className="modal-header">
-            <h5 className="modal-title">Thêm Đơn Vị</h5>
+            <h5 className="modal-title">  {mode === 'add' ? 'Thêm Đơn Vị' : 'Chỉnh Sửa Đơn Vị'}</h5>
             <button
               type="button"
               className="btn-close"
@@ -74,7 +96,7 @@ const AddUnitModal: React.FC<Props> = ({ onSubmit, onSubmitSuccess }) => {
 
           <div className="container p-4">
             <div className="row g-3">
-              <div className="col-md-6">
+              <div className="col-md-12">
                 <label className="form-label">Tên đơn vị</label>
                 <input
                   type="text"
@@ -86,12 +108,33 @@ const AddUnitModal: React.FC<Props> = ({ onSubmit, onSubmitSuccess }) => {
 
               <div className="col-md-6">
                 <label className="form-label">Lĩnh vực</label>
-                <input
-                  type="text"
-                  className="form-control form-control-solid"
-                  value={formData.linhVuc}
-                  onChange={(e) => setFormData({ ...formData, linhVuc: e.target.value })}
-                />
+                <select
+                  className="form-select form-select-solid"
+                  value={formData.linhVucId}
+                  onChange={(e) => setFormData({ ...formData, linhVucId: e.target.value })}
+                >
+                  <option value="">-- Chọn lĩnh vực --</option>
+                  {linhVucs.map((lv) => (
+                    <option key={lv.linhVucId} value={lv.linhVucId}>
+                      {lv.tenLinhVuc}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-md-6">
+                <label className="form-label">Khối</label>
+                <select
+                  className="form-select form-select-solid"
+                  value={formData.khoiId}
+                  onChange={(e) => setFormData({ ...formData, khoiId: e.target.value })}
+                >
+                  <option value="">-- Chọn Khối --</option>
+                  {khois.map((k) => (
+                    <option key={k.khoiId} value={k.khoiId}>
+                      {k.tenKhoi}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="col-md-6">
@@ -180,8 +223,8 @@ const AddUnitModal: React.FC<Props> = ({ onSubmit, onSubmitSuccess }) => {
             <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
               Hủy
             </button>
-            <button type="button" className="btn btn-primary" onClick={handleAdd}>
-              Thêm
+            <button type="button" className="btn btn-primary" onClick={handleSave}>
+              {(mode === 'add' ? 'Thêm' : 'Cập nhật')}
             </button>
           </div>
         </div>

@@ -16,20 +16,20 @@ export type DonVi = {
   linhVucId: string
   tenLinhVuc: string
 }
-export function flattenTree(tree: any[]): DonVi[] {
-  const result: DonVi[] = []
+// export function flattenTree(tree: any[]): DonVi[] {
+//   const result: DonVi[] = []
 
-  tree.forEach((lv) => {
-    lv.khois.forEach((khoi: any) => {
-      khoi.bienChes.forEach((bc: any) => {
-        result.push({
-          ...bc,
-          tenKhoi: khoi.tenKhoi,
-          tenLinhVuc: lv.tenLinhVuc,
-        })
-      })
-    })
-  })
+//   tree.forEach((lv) => {
+//     lv.khois.forEach((khoi: any) => {
+//       khoi.bienChes.forEach((bc: any) => {
+//         result.push({
+//           ...bc,
+//           tenKhoi: khoi.tenKhoi,
+//           tenLinhVuc: lv.tenLinhVuc,
+//         })
+//       })
+//     })
+//   })
 
-  return result
-}
+//   return result
+// }

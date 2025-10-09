@@ -8,7 +8,6 @@ import {
   UseExpandedRowProps,
   UseExpandedOptions,
 } from 'react-table'
-import { DonVi } from './settings/_models'
 
 // ------------------- Kiểu dữ liệu -------------------
 export type LinhVuc = {
@@ -49,10 +48,12 @@ type UnitsTableProps = {
   page: number
   pageSize: number
   onPageChange: (page: number) => void
-  onDelete: (unit: DonVi) => void
+  onDelete: (id: string) => void // 👈 chỉ nhận id Biên chế
+  onUpdate: (record: any) => void
+  onAddClick?: () => void
 }
 
-const UnitsTable: React.FC<UnitsTableProps> = ({ data }) => {
+const UnitsTable: React.FC<UnitsTableProps> = ({ data, onDelete, onUpdate }) => {
   const columns: Column<LinhVuc>[] = useMemo(
     () => [
       {
@@ -112,41 +113,89 @@ const UnitsTable: React.FC<UnitsTableProps> = ({ data }) => {
               {r.isExpanded && (
                 <tr>
                   <td colSpan={r.cells.length}>
-                    {r.original.khois.map((khoi) => (
-                      <div key={khoi.id} className="mb-3">
-                        <h6>{khoi.tenKhoi}</h6>
-                        <table className="table table-sm table-bordered mb-0">
-                          <thead>
-                            <tr>
-                              <th>Tên đơn vị</th>
-                              <th>SL Viên chức</th>
-                              <th>SL Hợp đồng</th>
-                              <th>SL Hợp đồng ND</th>
-                              <th>SL Bố trí</th>
-                              <th>Số Quyết định</th>
-                              <th>SL Giáo viên</th>
-                              <th>SL Quản lý</th>
-                              <th>SL Nhân viên</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {khoi.bienChes.map((bc) => (
-                              <tr key={bc.id}>
-                                <td>{bc.tenDonVi}</td>
-                                <td>{bc.slVienChuc}</td>
-                                <td>{bc.slHopDong}</td>
-                                <td>{bc.slHopDongND}</td>
-                                <td>{bc.slBoTri}</td>
-                                <td>{bc.soQuyetDinh}</td>
-                                <td>{bc.slGiaoVien}</td>
-                                <td>{bc.slQuanLy}</td>
-                                <td>{bc.slNhanVien}</td>
+                    {r.original.khois.map((khoi) => {
+                      const totals = {
+                        slVienChuc: khoi.bienChes.reduce((sum, bc) => sum + bc.slVienChuc, 0),
+                        slHopDong: khoi.bienChes.reduce((sum, bc) => sum + bc.slHopDong, 0),
+                        slHopDongND: khoi.bienChes.reduce((sum, bc) => sum + bc.slHopDongND, 0),
+                        slBoTri: khoi.bienChes.reduce((sum, bc) => sum + bc.slBoTri, 0),
+                        slGiaoVien: khoi.bienChes.reduce((sum, bc) => sum + bc.slGiaoVien, 0),
+                        slQuanLy: khoi.bienChes.reduce((sum, bc) => sum + bc.slQuanLy, 0),
+                        slNhanVien: khoi.bienChes.reduce((sum, bc) => sum + bc.slNhanVien, 0),
+                      }
+
+                      return (
+                        <div key={khoi.id} className="mb-3">
+                          <h6>
+                            {khoi.tenKhoi} &nbsp;
+                            <small className="text-muted">
+                              (Viên chức: {totals.slVienChuc},
+                              Hợp đồng: {totals.slHopDong},
+                              HĐND: {totals.slHopDongND},
+                              Bố trí: {totals.slBoTri},
+                              GV: {totals.slGiaoVien},
+                              QL: {totals.slQuanLy},
+                              NV: {totals.slNhanVien})
+                            </small>
+                          </h6>
+
+                          <table className="table table-sm table-bordered mb-0">
+                            <thead>
+                              <tr>
+                                <th>Tên đơn vị</th>
+                                <th>SL Viên chức</th>
+                                <th>SL Hợp đồng</th>
+                                <th>SL Hợp đồng ND</th>
+                                <th>SL Bố trí</th>
+                                <th>Số Quyết định</th>
+                                <th>SL Giáo viên</th>
+                                <th>SL Quản lý</th>
+                                <th>SL Nhân viên</th>
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    ))}
+                            </thead>
+                            <tbody>
+                              {khoi.bienChes.map((bc) => (
+                                <tr key={bc.id}>
+                                  <td>{bc.tenDonVi}</td>
+                                  <td>{bc.slVienChuc}</td>
+                                  <td>{bc.slHopDong}</td>
+                                  <td>{bc.slHopDongND}</td>
+                                  <td>{bc.slBoTri}</td>
+                                  <td>{bc.soQuyetDinh}</td>
+                                  <td>{bc.slGiaoVien}</td>
+                                  <td>{bc.slQuanLy}</td>
+                                  <td>{bc.slNhanVien}</td>
+                                  <td>
+                                    <button
+                                      className="btn btn-icon btn-primary fa-solid fa-trash fs-8 me-4"
+                                      onClick={() => onDelete(bc.id)}
+                                    >
+                                    </button>
+                                    <button
+                                      className="btn btn-icon btn-success fa-solid fa-pencil fs-8 me-4"
+                                      onClick={() => onUpdate(bc)}
+                                    >
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))}
+                              {/* Hàng tổng cuối bảng */}
+                              <tr className="fw-bold table-light ">
+                                <td>Tổng</td>
+                                <td>{totals.slVienChuc}</td>
+                                <td>{totals.slHopDong}</td>
+                                <td>{totals.slHopDongND}</td>
+                                <td>{totals.slBoTri}</td>
+                                <td>-</td>
+                                <td>{totals.slGiaoVien}</td>
+                                <td>{totals.slQuanLy}</td>
+                                <td>{totals.slNhanVien}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      )
+                    })}
                   </td>
                 </tr>
               )}

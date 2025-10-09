@@ -158,6 +158,7 @@ D:\KTPN\API\obj\Debug\net9.0\API.AssemblyInfo.cs
 D:\KTPN\API\obj\Debug\net9.0\API.csproj.CoreCompileInputs.cache
 D:\KTPN\API\obj\Debug\net9.0\API.MvcApplicationPartsAssemblyInfo.cs
 D:\KTPN\API\obj\Debug\net9.0\API.MvcApplicationPartsAssemblyInfo.cache
+D:\KTPN\API\obj\Debug\net9.0\API.sourcelink.json
 D:\KTPN\API\obj\Debug\net9.0\scopedcss\bundle\API.styles.css
 D:\KTPN\API\obj\Debug\net9.0\staticwebassets.build.json
 D:\KTPN\API\obj\Debug\net9.0\staticwebassets.development.json

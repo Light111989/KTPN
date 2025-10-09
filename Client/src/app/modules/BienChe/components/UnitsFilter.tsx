@@ -1,16 +1,21 @@
-import { FC } from 'react'
+import { FC, useEffect, useState } from 'react'
 import { Field, Formik, Form } from 'formik'
 import { Button } from 'react-bootstrap'
 
 type Props = {
   onFilter: (values: any) => void
   onReset: () => void
+  linhVucs: any[]
+  khois: any[]
 }
 
-const UnitsFilter: FC<Props> = ({ onFilter, onReset }) => {
+
+
+const UnitsFilter: FC<Props> = ({ onFilter, onReset, linhVucs, khois }) => {
+
   return (
     <Formik
-      initialValues={{ linhVucId: '', tenDonVi: '' }}
+      initialValues={{ linhVucId: '', khoiId: '', tenDonVi: '' }}
       onSubmit={(values) => onFilter(values)}
     >
       {() => (
@@ -18,8 +23,21 @@ const UnitsFilter: FC<Props> = ({ onFilter, onReset }) => {
           <div className='col-auto'>
             <Field as='select' name='linhVucId' className='form-select'>
               <option value=''>-- Chọn lĩnh vực --</option>
-              <option value='1'>Giáo dục</option>
-              <option value='2'>Y tế</option>
+              {linhVucs.map((lv) => (
+                <option key={lv.linhVucId} value={lv.linhVucId}>
+                  {lv.tenLinhVuc}
+                </option>
+              ))}
+            </Field>
+          </div>
+          <div className='col-auto'>
+            <Field as='select' name='khoiId' className='form-select'>
+              <option value=''>-- Chọn Khối --</option>
+              {khois.map((k) => (
+                <option key={k.khoiId} value={k.khoiId}>
+                  {k.tenKhoi}
+                </option>
+              ))}
             </Field>
           </div>
           <div className='col-auto'>
