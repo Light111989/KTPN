@@ -1,3 +1,5 @@
+
+using System.Text.Json.Serialization;
 using API.Domain;
 
 public class BienCheDto
@@ -12,6 +14,8 @@ public class BienCheDto
     public byte SLGiaoVien { get; set; }
     public byte SLQuanLy { get; set; }
     public byte SLNhanVien { get; set; }
+    [JsonPropertyName("slHD111")]
+    public int SLHD111 { get; set; }
 
     public Guid KhoiId { get; set; }
     public string? TenKhoi { get; set; }

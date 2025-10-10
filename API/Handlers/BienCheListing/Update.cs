@@ -20,6 +20,7 @@ public class Update
         public byte SLGiaoVien { get; set; }
         public byte SLQuanLy { get; set; }
         public byte SLNhanVien { get; set; }
+        public byte SLHD111 { get; set; }
     }
     public class Validator // Optionally implement validation logic here
     {
@@ -54,6 +55,7 @@ public class Update
             bienche.SLGiaoVien = res.SLGiaoVien;
             bienche.SLQuanLy = res.SLQuanLy;
             bienche.SLNhanVien = res.SLNhanVien;
+            bienche.SLHD111 = res.SLHD111;
 
             await _context.SaveChangesAsync(cancellationToken);
         }

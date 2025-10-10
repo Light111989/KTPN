@@ -65,7 +65,8 @@ public class BienChesController : BaseController
                             KhoiId = b.KhoiId,
                             TenKhoi = b.Khoi.TenKhoi,
                             LinhVucId = b.LinhVucId,
-                            TenLinhVuc = b.LinhVuc.TenLinhVuc
+                            TenLinhVuc = b.LinhVuc.TenLinhVuc,
+                            SLHD111 = b.SLHD111
                         }).ToList()
                     }).ToList()
             }).ToList();
@@ -193,7 +194,8 @@ public class BienChesController : BaseController
                                   b.SoQuyetDinh,
                                   SLGiaoVien = (int)b.SLGiaoVien,
                                   SLQuanLy = (int)b.SLQuanLy,
-                                  SLNhanVien = (int)b.SLNhanVien
+                                  SLNhanVien = (int)b.SLNhanVien,
+                                  SLHD111 = (int)b.SLHD111
                               }).ToList()
                           }).ToList()
             }).ToList();
@@ -286,6 +288,7 @@ public class BienChesController : BaseController
         int grandTotals_slGiaoVien = 0;
         int grandTotals_slQuanLy = 0;
         int grandTotals_slNhanVien = 0;
+        int grandTotals_slHD111 = 0;
 
         foreach (var lv in items)
         {
@@ -294,7 +297,7 @@ public class BienChesController : BaseController
             ws.Cell(currentRow, 1).Value = sttLinhVuc; // STT
             ws.Cell(currentRow, 2).Value = $" {lv.TenLinhVuc}"; // tên lĩnh vực
                                                                 // style the whole row as header-of-group
-            var groupRange = ws.Range(currentRow, 1, currentRow, 13);
+            var groupRange = ws.Range(currentRow, 1, currentRow, 14);
             groupRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#fcf8f8ff");
             groupRange.Style.Font.SetBold();
 
@@ -307,6 +310,7 @@ public class BienChesController : BaseController
             int sumGV = lv.Khois.Sum(k => k.BienChes.Sum(b => b.SLGiaoVien));
             int sumQL = lv.Khois.Sum(k => k.BienChes.Sum(b => b.SLQuanLy));
             int sumNV = lv.Khois.Sum(k => k.BienChes.Sum(b => b.SLNhanVien));
+            int sumHD111 = lv.Khois.Sum(k => k.BienChes.Sum(b => b.SLHD111));
 
             ws.Cell(currentRow, 3).Value = sumVien;
             ws.Cell(currentRow, 4).Value = sumHop;
@@ -316,6 +320,7 @@ public class BienChesController : BaseController
             ws.Cell(currentRow, 9).Value = sumGV;
             ws.Cell(currentRow, 10).Value = sumQL;
             ws.Cell(currentRow, 11).Value = sumNV;
+            ws.Cell(currentRow, 12).Value = sumHD111;
 
             // add to grand totals
             grandTotals_slVienChuc += sumVien;
@@ -325,6 +330,7 @@ public class BienChesController : BaseController
             grandTotals_slGiaoVien += sumGV;
             grandTotals_slQuanLy += sumQL;
             grandTotals_slNhanVien += sumNV;
+            grandTotals_slHD111 += sumHD111;
 
             currentRow++;
 
@@ -339,6 +345,7 @@ public class BienChesController : BaseController
                 int subGV = khoi.BienChes.Sum(b => b.SLGiaoVien);
                 int subQL = khoi.BienChes.Sum(b => b.SLQuanLy);
                 int subNV = khoi.BienChes.Sum(b => b.SLNhanVien);
+                int subHD111 = khoi.BienChes.Sum(b => b.SLHD111);
 
                 // Khoi header row (bold small)
                 ws.Cell(currentRow, 2).Value = khoi.TenKhoi;
@@ -351,9 +358,10 @@ public class BienChesController : BaseController
                 ws.Cell(currentRow, 9).Value = subGV;
                 ws.Cell(currentRow, 10).Value = subQL;
                 ws.Cell(currentRow, 11).Value = subNV;
+                ws.Cell(currentRow, 12).Value = subHD111;
 
                 // style subtotal
-                var subRange = ws.Range(currentRow, 2, currentRow, 11);
+                var subRange = ws.Range(currentRow, 2, currentRow, 12);
                 subRange.Style.Font.SetBold();
                 subRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#F5D7D7");
                 currentRow++;
@@ -371,6 +379,7 @@ public class BienChesController : BaseController
                     ws.Cell(currentRow, 9).Value = bc.SLGiaoVien;
                     ws.Cell(currentRow, 10).Value = bc.SLQuanLy;
                     ws.Cell(currentRow, 11).Value = bc.SLNhanVien;
+                    ws.Cell(currentRow, 12).Value = bc.SLHD111;
 
                     // action columns or blank columns (L, M) can be left blank or filled if required
                     currentRow++;
@@ -414,12 +423,13 @@ public class BienChesController : BaseController
         ws.Cell(currentRow + 1, 9).Value = grandTotals_slGiaoVien;
         ws.Cell(currentRow + 1, 10).Value = grandTotals_slQuanLy;
         ws.Cell(currentRow + 1, 11).Value = grandTotals_slNhanVien;
+        ws.Cell(currentRow + 1, 12).Value = grandTotals_slHD111;
         var gRange = ws.Range(currentRow + 1, 2, currentRow + 1, 11);
         gRange.Style.Font.SetBold();
         gRange.Style.Border.TopBorder = XLBorderStyleValues.Thin;
 
         // Borders for used area
-        var usedRange = ws.Range(2, 1, currentRow + 1, 13);
+        var usedRange = ws.Range(2, 1, currentRow + 1, 14);
         usedRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
         usedRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
 

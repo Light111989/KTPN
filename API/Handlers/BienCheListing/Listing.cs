@@ -60,6 +60,7 @@ public class Listing
                                 SLGiaoVien = b.SLGiaoVien,
                                 SLQuanLy = b.SLQuanLy,
                                 SLNhanVien = b.SLNhanVien,
+                                SLHD111 = b.SLHD111,
                                 KhoiId = b.KhoiId,
                                 LinhVucId = b.LinhVucId
                             }).ToList()

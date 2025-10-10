@@ -19,6 +19,7 @@ namespace API.Domain
         public byte SLGiaoVien { get; set; }
         public byte SLQuanLy { get; set; }
         public byte SLNhanVien { get; set; }
+        public byte SLHD111 { get; set; }
 
         // Foreign keys
         public Guid KhoiId { get; set; }

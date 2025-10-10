@@ -28,6 +28,7 @@ const AddUnitModal: React.FC<Props> = ({ mode, initialData, linhVucs, khois, onS
     slGiaoVien: 0,
     slQuanLy: 0,
     slNhanVien: 0,
+    slHD111: 0,
   }
   const [formData, setFormData] = useState(initialForm)
 
@@ -125,7 +126,7 @@ const AddUnitModal: React.FC<Props> = ({ mode, initialData, linhVucs, khois, onS
 
           <div className="container p-4">
             <div className="row g-3">
-              <div className="col-md-12">
+              <div className="col-md-6">
                 <label className="form-label">Tên đơn vị</label>
                 <input
                   type="text"
@@ -243,6 +244,15 @@ const AddUnitModal: React.FC<Props> = ({ mode, initialData, linhVucs, khois, onS
                   className="form-control form-control-solid"
                   value={formData.slNhanVien}
                   onChange={(e) => setFormData({ ...formData, slNhanVien: Number(e.target.value) })}
+                />
+              </div>
+              <div className="col-md-6">
+                <label className="form-label">Số lượng HD111</label>
+                <input
+                  type="number"
+                  className="form-control form-control-solid"
+                  value={formData.slHD111}
+                  onChange={(e) => setFormData({ ...formData, slHD111: Number(e.target.value) })}
                 />
               </div>
             </div>

@@ -33,6 +33,7 @@ export type BienChe = {
   slGiaoVien: number
   slQuanLy: number
   slNhanVien: number
+  slHD111: number
   khoiId: string
   linhVucId: string
 }
@@ -122,6 +123,7 @@ const UnitsTable: React.FC<UnitsTableProps> = ({ data, onDelete, onUpdate }) => 
                         slGiaoVien: khoi.bienChes.reduce((sum, bc) => sum + bc.slGiaoVien, 0),
                         slQuanLy: khoi.bienChes.reduce((sum, bc) => sum + bc.slQuanLy, 0),
                         slNhanVien: khoi.bienChes.reduce((sum, bc) => sum + bc.slNhanVien, 0),
+                        slHD111: khoi.bienChes.reduce((sum, bc) => sum + bc.slHD111, 0),
                       }
 
                       return (
@@ -136,6 +138,7 @@ const UnitsTable: React.FC<UnitsTableProps> = ({ data, onDelete, onUpdate }) => 
                               GV: {totals.slGiaoVien},
                               QL: {totals.slQuanLy},
                               NV: {totals.slNhanVien})
+                              HD111: {totals.slHD111})
                             </small>
                           </h6>
 
@@ -151,6 +154,7 @@ const UnitsTable: React.FC<UnitsTableProps> = ({ data, onDelete, onUpdate }) => 
                                 <th>SL Giáo viên</th>
                                 <th>SL Quản lý</th>
                                 <th>SL Nhân viên</th>
+                                <th>SL HĐ 111</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -165,6 +169,7 @@ const UnitsTable: React.FC<UnitsTableProps> = ({ data, onDelete, onUpdate }) => 
                                   <td>{bc.slGiaoVien}</td>
                                   <td>{bc.slQuanLy}</td>
                                   <td>{bc.slNhanVien}</td>
+                                  <td>{bc.slHD111}</td>
                                   <td>
                                     <button
                                       className="btn btn-icon btn-primary fa-solid fa-trash fs-8 me-4"
@@ -190,6 +195,7 @@ const UnitsTable: React.FC<UnitsTableProps> = ({ data, onDelete, onUpdate }) => 
                                 <td>{totals.slGiaoVien}</td>
                                 <td>{totals.slQuanLy}</td>
                                 <td>{totals.slNhanVien}</td>
+                                <td>{totals.slHD111}</td>
                               </tr>
                             </tbody>
                           </table>
