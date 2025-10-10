@@ -5,7 +5,7 @@ import { Modal } from 'bootstrap'
 type Props = {
   mode: 'add' | 'edit'
   onSubmitSuccess: () => void // callback để refresh danh sách
-  onSubmit: (data: any) => Promise<void>; // ⚡ bắt buộc phải có
+  // onSubmit: (data: any) => Promise<void>; // ⚡ bắt buộc phải có
   initialData?: any
   linhVucs: any[]
   khois: any[]
@@ -33,52 +33,81 @@ const AddUnitModal: React.FC<Props> = ({ mode, initialData, linhVucs, khois, onS
 
   useEffect(() => {
     if (mode === 'edit' && initialData) {
-      setFormData(initialData) // 🟢 set luôn data vào form
+      setFormData(initialData);        // Load dữ liệu record khi Edit
     } else if (mode === 'add') {
-      setFormData(initialForm) // reset khi add
+      setFormData(initialForm);        // Reset form khi Add
     }
-  }, [mode, initialData])
+  }, [mode, initialData]);
 
   const handleSave = async () => {
     try {
       if (mode === 'add') {
         await createDonVi(formData)
-        alert('Thêm đơn vị thành công!')
       } else {
         await updateDonVi(formData.id, formData)
-        alert('Cập nhật đơn vị thành công!')
       }
-
-      const modalEl = document.getElementById('kt_modal_1')
-      if (modalEl) {
-        const modal = Modal.getInstance(modalEl) || new Modal(modalEl)
-        modal.hide()
-      }
-
+      closeModal()
       onSubmitSuccess()
-    } catch (err: any) {
+    } catch (err) {
       console.error(err)
-      alert((mode === 'add' ? 'Thêm' : 'Cập nhật') + ' thất bại: ' + err.message)
+      alert('Lỗi khi lưu!')
+    }
+  }
+  // const handleSave = async () => {
+  //   try {
+  //     if (mode === 'add') {
+  //       await createDonVi(formData)
+  //       alert('Thêm đơn vị thành công!')
+  //     } else {
+  //       await updateDonVi(formData.id, formData)
+  //       alert('Cập nhật đơn vị thành công!')
+  //     }
+
+  //     const modalEl = document.getElementById('kt_modal_1')
+  //     if (modalEl) {
+  //       const modal = Modal.getInstance(modalEl) || new Modal(modalEl)
+  //       modal.hide()
+  //     }
+
+  //     onSubmitSuccess()
+  //   } catch (err: any) {
+  //     console.error(err)
+  //     alert((mode === 'add' ? 'Thêm' : 'Cập nhật') + ' thất bại: ' + err.message)
+  //   }
+  // }
+
+  const openModal = () => {
+    const modalEl = document.getElementById('kt_modal_1')
+    if (modalEl) {
+      const modal = new Modal(modalEl) // luôn tạo instance mới
+      modal.show()
     }
   }
 
-
-  // Reset form mỗi khi modal đóng
-  useEffect(() => {
+  // ✅ Hàm đóng modal
+  const closeModal = () => {
     const modalEl = document.getElementById('kt_modal_1')
-    if (!modalEl) return
-
-    modalEl.addEventListener('hidden.bs.modal', () => {
-      setFormData(initialForm)
-    })
-
-    return () => {
-      modalEl.removeEventListener('hidden.bs.modal', () => {
-        setFormData(initialForm)
-      })
+    if (modalEl) {
+      const modal = Modal.getInstance(modalEl)
+      modal?.hide()
     }
+  }
+  // // Reset form mỗi khi modal đóng
+  // useEffect(() => {
+  //   const modalEl = document.getElementById('kt_modal_1')
+  //   if (!modalEl) return
 
-  }, [])
+  //   modalEl.addEventListener('hidden.bs.modal', () => {
+  //     setFormData(initialForm)
+  //   })
+
+  //   return () => {
+  //     modalEl.removeEventListener('hidden.bs.modal', () => {
+  //       setFormData(initialForm)
+  //     })
+  //   }
+
+  // }, [])
 
   return (
     <div className="modal fade" tabIndex={-1} id="kt_modal_1">

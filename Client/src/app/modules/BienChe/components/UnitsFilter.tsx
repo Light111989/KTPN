@@ -2,17 +2,25 @@ import { FC, useEffect, useState } from 'react'
 import { Field, Formik, Form } from 'formik'
 import { Button } from 'react-bootstrap'
 import { exportExcel } from './settings/_requests'
+import { Modal } from 'bootstrap'
 
 type Props = {
   onFilter: (values: any) => void
   onReset: () => void
+  openModal: () => void
   linhVucs: any[]
   khois: any[]
 }
 
+// const openModal = () => {
+//   const modalEl = document.getElementById('kt_modal_1')
+//   if (modalEl) {
+//     const modal = new Modal(modalEl) // luôn tạo instance mới
+//     modal.show()
+//   }
+// }
 
-
-const UnitsFilter: FC<Props> = ({ onFilter, onReset, linhVucs, khois }) => {
+const UnitsFilter: FC<Props> = ({ onFilter, openModal, linhVucs, khois }) => {
 
   return (
     <Formik
@@ -61,9 +69,7 @@ const UnitsFilter: FC<Props> = ({ onFilter, onReset, linhVucs, khois }) => {
 
               variant='light'
               className='ms-2 btn btn-info'
-
-              data-bs-toggle='modal'
-              data-bs-target='#kt_modal_1'
+              onClick={openModal}
             >
               <span className="bi bi-file-earmark-plus"></span>
               Add

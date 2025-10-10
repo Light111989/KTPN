@@ -2,61 +2,103 @@ import React, { useEffect, useState } from 'react'
 import { PageLink, PageTitle } from '../../../_metronic/layout/core'
 import UnitsFilter from './components/UnitsFilter'
 import UnitsTable, { Khoi, LinhVuc } from './components/UnitsTable'
-import { DonVi } from './components/settings/_models'
-import { createDonVi, deleteDonVi, fetchDonVis, fetchKhois, fetchLinhVucs, searchBienChes, } from './components/settings/_requests'
+import { createDonVi, deleteDonVi, fetchDonVis, fetchKhois, fetchLinhVucs, searchBienChes } from './components/settings/_requests'
 import AddUnitModal from './components/AddUnitModal'
 import Swal from 'sweetalert2'
 import { Modal } from 'bootstrap'
 
+// Breadcrumb
 const biencheBreadCrumbs: Array<PageLink> = [
-  {
-    title: 'Biên Chế',
-    path: '/bien-che/ds-don-vi',
-    isSeparator: false,
-    isActive: false,
-  },
+  { title: 'Biên Chế', path: '/bien-che/ds-don-vi', isSeparator: false, isActive: false },
 ]
 
 const UnitsPage: React.FC = () => {
+  // Dữ liệu chính
   const [data, setData] = useState<LinhVuc[]>([])
   const [loading, setLoading] = useState(false)
+
+  // Phân trang
   const [page, setPage] = useState(1)
   const [pageSize] = useState(5)
   const [totalRecords, setTotalRecords] = useState(0)
+
+  // Quản lý modal
   const [mode, setMode] = useState<'add' | 'edit'>('add')
   const [selectedRecord, setSelectedRecord] = useState<any | null>(null)
+
+  // Dùng cho filter + form
   const [linhVucs, setLinhVucs] = useState<LinhVuc[]>([])
   const [khois, setKhois] = useState<Khoi[]>([])
 
+  // ✅ Hàm mở modal (luôn tạo instance mới)
+  const openModal = () => {
+    const modalEl = document.getElementById('kt_modal_1')
+    if (modalEl) {
+      const modal = new Modal(modalEl)
+      modal.show()
+    }
+  }
 
+  // ✅ Hàm đóng modal
+  const closeModal = () => {
+    const modalEl = document.getElementById('kt_modal_1')
+    if (modalEl) {
+      const modal = Modal.getInstance(modalEl)
+      modal?.hide()
+    }
+  }
+
+  // ✅ Khi ấn Thêm
+  const handleAdd = () => {
+    setMode('add')
+    setSelectedRecord(null) // ❗ Reset record
+    openModal()
+  }
+
+  // ✅ Khi ấn Sửa
+  const handleEdit = (record: any) => {
+    setMode('edit')
+    setSelectedRecord(record) // ❗ Lưu record để edit
+    openModal()
+  }
+
+  // ✅ Load dữ liệu
+  const loadData = async () => {
+    try {
+      setLoading(true)
+      const res = await fetchDonVis(page, pageSize)
+      setData(res.data.items)
+      setTotalRecords(res.data.totalRecords)
+    } catch (err) {
+      console.error('Lỗi khi load Linh Vực:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // ✅ Xóa
   const handleDelete = async (id: string) => {
     const result = await Swal.fire({
       title: 'Bạn có chắc muốn xóa?',
-      text: `Hành động này sẽ xóa bản ghi Biên chế và không thể hoàn tác!`,
+      text: 'Hành động này không thể hoàn tác!',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
       confirmButtonText: 'Có, xóa!',
-      cancelButtonText: 'Hủy'
+      cancelButtonText: 'Hủy',
     })
 
     if (result.isConfirmed) {
       try {
-        // gọi API xóa Biên chế
         await deleteDonVi(id)
-
-        // Cập nhật state sau khi xóa
         setData(prev =>
-          prev.map(linhVuc => ({
-            ...linhVuc,
-            khois: linhVuc.khois.map(khoi => ({
+          prev.map(lv => ({
+            ...lv,
+            khois: lv.khois.map(khoi => ({
               ...khoi,
-              bienChes: khoi.bienChes.filter(bc => bc.id !== id)
-            }))
+              bienChes: khoi.bienChes.filter(bc => bc.id !== id),
+            })),
           }))
         )
-
         Swal.fire('Đã xóa!', 'Bản ghi đã được xóa.', 'success')
       } catch (err) {
         console.error(err)
@@ -64,6 +106,25 @@ const UnitsPage: React.FC = () => {
       }
     }
   }
+
+  // ✅ Khi submit form (add hoặc edit)
+  const handleSubmitSuccess = () => {
+    closeModal()
+    loadData()
+  }
+
+  // ✅ Filter
+  const handleFilter = async (values: any) => {
+    if (!values.tenDonVi && !values.linhVucId && !values.khoiId) {
+      loadData()
+    } else {
+      const res = await searchBienChes(values)
+      setData(res.items)
+      setTotalRecords(res.totalRecords)
+    }
+  }
+
+  // ✅ Lấy dữ liệu LinhVuc & Khoi 1 lần
   useEffect(() => {
     const fetchData = async () => {
       const lv = await fetchLinhVucs()
@@ -73,64 +134,35 @@ const UnitsPage: React.FC = () => {
     }
     fetchData()
   }, [])
-  const handleEdit = (record: any) => {
-    setSelectedRecord(record)
-    setMode('edit')
 
-    // mở modal
-    const modalEl = document.getElementById('kt_modal_1')
-    if (modalEl) {
-      const modal = new Modal(modalEl)
-      modal.show()
-    }
-  }
-
-  const loadData = async () => {
-    try {
-      setLoading(true)
-      const res = await fetchDonVis(page, pageSize)
-      setData(res.data.items)
-
-      setTotalRecords(res.data.totalRecords)
-    } catch (err) {
-      console.error('Lỗi khi load Linh Vự:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-  const handleAddUnit = async (data: any) => {
-    try {
-      const newUnit = await createDonVi(data)
-      setData(prev => [...prev, newUnit])
-      alert('Thêm đơn vị thành công!')
-    } catch (err) {
-      console.error(err)
-      alert('Thêm đơn vị thất bại!')
-    }
-  }
+  // ✅ Load data khi đổi page
   useEffect(() => {
-    console.log('Request page:', page, 'pageSize:', pageSize);
-
     loadData()
   }, [page, pageSize])
-  const handleFilter = async (values: any) => {
-    // nếu không nhập gì thì lấy all
-    if (!values.tenDonVi && !values.linhVucId && !values.khoiId) {
-      loadData()
-    } else {
-      const res = await searchBienChes(values)
-      setData(res.items)
-      setTotalRecords(res.totalRecords)   // cần set lại
-      
-    }
-  }
+
   return (
     <>
       <PageTitle breadcrumbs={biencheBreadCrumbs}>Danh Sách Đơn Vị</PageTitle>
+
       <div className='card'>
         <div className='card-body'>
-          <UnitsFilter onFilter={handleFilter} linhVucs={linhVucs} khois={khois} onReset={() => { }} />
+          {/* Filter */}
+          <UnitsFilter
+            onFilter={handleFilter}
+            linhVucs={linhVucs}
+            khois={khois}
+            onReset={loadData}
+            openModal={handleAdd}
+          />
+
           <div className='separator my-6'></div>
+
+          {/* Nút Thêm */}
+          <button className='btn btn-primary mb-4' onClick={handleAdd}>
+            + Thêm đơn vị
+          </button>
+
+          {/* Table */}
           {loading ? (
             <p>Đang tải dữ liệu...</p>
           ) : (
@@ -146,12 +178,15 @@ const UnitsPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Modal Add/Edit */}
       <AddUnitModal
-        onSubmit={handleAddUnit}
-        onSubmitSuccess={loadData}
-        initialData={selectedRecord}
         mode={mode}
-        linhVucs={linhVucs} khois={khois}
+        initialData={selectedRecord}
+        linhVucs={linhVucs}
+        khois={khois}
+        onSubmitSuccess={handleSubmitSuccess}
+
       />
     </>
   )
