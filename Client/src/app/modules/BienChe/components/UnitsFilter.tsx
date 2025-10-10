@@ -1,6 +1,7 @@
 import { FC, useEffect, useState } from 'react'
 import { Field, Formik, Form } from 'formik'
 import { Button } from 'react-bootstrap'
+import { exportExcel } from './settings/_requests'
 
 type Props = {
   onFilter: (values: any) => void
@@ -48,14 +49,30 @@ const UnitsFilter: FC<Props> = ({ onFilter, onReset, linhVucs, khois }) => {
             />
           </div>
           <div className='col-auto'>
-            <Button type='submit'>Search</Button>
-            <Button
+            <Button type='submit'
               variant='light'
-              className='ms-2'
+              className='ms-2 btn btn-primary'
+
+            >
+              <span className="bi bi-search"></span>
+              Search
+            </Button>
+            <Button
+
+              variant='light'
+              className='ms-2 btn btn-info'
+
               data-bs-toggle='modal'
               data-bs-target='#kt_modal_1'
             >
+              <span className="bi bi-file-earmark-plus"></span>
               Add
+            </Button>
+            <Button
+              onClick={() => exportExcel()}
+              className=" ms-2 btn btn-success">
+              <span className=" bi bi-file-earmark-spreadsheet fs-6 me-2"></span>
+              Excel
             </Button>
           </div>
         </Form>

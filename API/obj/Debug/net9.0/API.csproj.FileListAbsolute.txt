@@ -177,3 +177,11 @@ D:\KTPN\API\obj\Debug\net9.0\API.genruntimeconfig.cache
 D:\KTPN\API\obj\Debug\net9.0\ref\API.dll
 D:\KTPN\API\bin\Debug\net9.0\package-lock.json
 D:\KTPN\API\bin\Debug\net9.0\package.json
+D:\KTPN\API\bin\Debug\net9.0\ClosedXML.dll
+D:\KTPN\API\bin\Debug\net9.0\ClosedXML.Parser.dll
+D:\KTPN\API\bin\Debug\net9.0\DocumentFormat.OpenXml.dll
+D:\KTPN\API\bin\Debug\net9.0\DocumentFormat.OpenXml.Framework.dll
+D:\KTPN\API\bin\Debug\net9.0\ExcelNumberFormat.dll
+D:\KTPN\API\bin\Debug\net9.0\RBush.dll
+D:\KTPN\API\bin\Debug\net9.0\SixLabors.Fonts.dll
+D:\KTPN\API\bin\Debug\net9.0\System.IO.Packaging.dll

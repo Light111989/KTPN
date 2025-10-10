@@ -42,7 +42,22 @@ export function fetchKhois() {
   return axios.post(`${API_URL}/Khois/listing?`)
 }
 
-export const searchBienChes = async (filters: {tenDonVi?: string; khoiId?: string; linhVucId?: string}) => {
+export const searchBienChes = async (filters: { tenDonVi?: string; khoiId?: string; linhVucId?: string }) => {
   const res = await axios.get(`${API_URL}/BienChes/search`, { params: filters });
-   return res.data;
+  return res.data;
 };
+
+export async function exportExcel() {
+  const response = await axios.get(`${API_URL}/BienChes/export-excel`, {
+    responseType: 'blob', // BẮT BUỘC để nhận file
+  })
+
+  // tạo link download
+  const url = window.URL.createObjectURL(new Blob([response.data]))
+  const link = document.createElement('a')
+  link.href = url
+  link.setAttribute('download', `BienChe_${new Date().getTime()}.xlsx`)
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+}
