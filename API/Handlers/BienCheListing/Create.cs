@@ -22,6 +22,7 @@ namespace API.Handlers.BienCheListing
             public byte SLQuanLy { get; set; }
             public byte SLNhanVien { get; set; }
             public byte SLHD111 { get; set; }
+            public DateTime EffectiveDate { get; set; }
         }
 
         public class Handler : IRequestHandler<CreateBienCheCommand, BienChe>
@@ -57,7 +58,8 @@ namespace API.Handlers.BienCheListing
                     SLGiaoVien = request.SLGiaoVien,
                     SLQuanLy = request.SLQuanLy,
                     SLNhanVien = request.SLNhanVien,
-                    SLHD111 = request.SLHD111
+                    SLHD111 = request.SLHD111,
+                    EffectiveDate = request.EffectiveDate
                 };
 
                 _context.BienChes.Add(bienche);

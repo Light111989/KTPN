@@ -2,10 +2,18 @@ import React, { useEffect, useState } from 'react'
 import { PageLink, PageTitle } from '../../../_metronic/layout/core'
 import UnitsFilter from './components/UnitsFilter'
 import UnitsTable, { Khoi, LinhVuc } from './components/UnitsTable'
-import { createDonVi, deleteDonVi, fetchDonVis, fetchKhois, fetchLinhVucs, searchBienChes } from './components/settings/_requests'
+import {
+  deleteDonVi,
+  exportExcel,
+  fetchDonVis,
+  fetchKhois,
+  fetchLinhVucs,
+  searchBienChes,
+} from './components/settings/_requests'
 import AddUnitModal from './components/AddUnitModal'
 import Swal from 'sweetalert2'
-import { Modal } from 'bootstrap'
+import BienCheDetailModal from './components/UnitDetail'
+import ExportExcelModal from './components/ExportExcelModal'
 
 // Breadcrumb
 const biencheBreadCrumbs: Array<PageLink> = [
@@ -23,43 +31,42 @@ const UnitsPage: React.FC = () => {
   const [totalRecords, setTotalRecords] = useState(0)
 
   // Quản lý modal
+  const [modalOpen, setModalOpen] = useState(false)         // Add/Edit
   const [mode, setMode] = useState<'add' | 'edit'>('add')
   const [selectedRecord, setSelectedRecord] = useState<any | null>(null)
 
+  const [selectedDetailId, setSelectedDetailId] = useState<string | null>(null) // Detail
+  const [showExport, setShowExport] = useState(false)
   // Dùng cho filter + form
   const [linhVucs, setLinhVucs] = useState<LinhVuc[]>([])
   const [khois, setKhois] = useState<Khoi[]>([])
 
-  // ✅ Hàm mở modal (luôn tạo instance mới)
-  const openModal = () => {
-    const modalEl = document.getElementById('kt_modal_1')
-    if (modalEl) {
-      const modal = new Modal(modalEl)
-      modal.show()
+
+  const handleExport = async (filters: any) => {
+    try {
+      // gọi API xuất Excel
+      await exportExcel(filters)
+    } catch (e) {
+      console.error(e)
     }
   }
-
-  // ✅ Hàm đóng modal
-  const closeModal = () => {
-    const modalEl = document.getElementById('kt_modal_1')
-    if (modalEl) {
-      const modal = Modal.getInstance(modalEl)
-      modal?.hide()
-    }
-  }
-
   // ✅ Khi ấn Thêm
   const handleAdd = () => {
     setMode('add')
-    setSelectedRecord(null) // ❗ Reset record
-    openModal()
+    setSelectedRecord(null)
+    setModalOpen(true)
   }
 
   // ✅ Khi ấn Sửa
   const handleEdit = (record: any) => {
     setMode('edit')
-    setSelectedRecord(record) // ❗ Lưu record để edit
-    openModal()
+    setSelectedRecord(record)
+    setModalOpen(true)
+  }
+
+  // ✅ Khi ấn Xem chi tiết
+  const showDetails = (id: string) => {
+    setSelectedDetailId(id)
   }
 
   // ✅ Load dữ liệu
@@ -109,13 +116,13 @@ const UnitsPage: React.FC = () => {
 
   // ✅ Khi submit form (add hoặc edit)
   const handleSubmitSuccess = () => {
-    closeModal()
+    setModalOpen(false)
     loadData()
   }
 
   // ✅ Filter
   const handleFilter = async (values: any) => {
-    if (!values.tenDonVi && !values.linhVucId && !values.khoiId) {
+    if (!values.tenDonVi && !values.linhVucId && !values.khoiId && !values.effectiveDate) {
       loadData()
     } else {
       const res = await searchBienChes(values)
@@ -144,8 +151,8 @@ const UnitsPage: React.FC = () => {
     <>
       <PageTitle breadcrumbs={biencheBreadCrumbs}>Danh Sách Đơn Vị</PageTitle>
 
-      <div className='card'>
-        <div className='card-body'>
+      <div className="card">
+        <div className="card-body">
           {/* Filter */}
           <UnitsFilter
             onFilter={handleFilter}
@@ -153,14 +160,10 @@ const UnitsPage: React.FC = () => {
             khois={khois}
             onReset={loadData}
             openModal={handleAdd}
+            openModalExport={() => setShowExport(true)} 
           />
 
-          <div className='separator my-6'></div>
-
-          {/* Nút Thêm */}
-          <button className='btn btn-primary mb-4' onClick={handleAdd}>
-            + Thêm đơn vị
-          </button>
+          <div className="separator my-6"></div>
 
           {/* Table */}
           {loading ? (
@@ -174,6 +177,7 @@ const UnitsPage: React.FC = () => {
               onPageChange={setPage}
               onDelete={handleDelete}
               onUpdate={handleEdit}
+              setSelectedId={showDetails}
             />
           )}
         </div>
@@ -181,12 +185,28 @@ const UnitsPage: React.FC = () => {
 
       {/* Modal Add/Edit */}
       <AddUnitModal
+        show={modalOpen}
         mode={mode}
         initialData={selectedRecord}
         linhVucs={linhVucs}
         khois={khois}
+        onClose={() => setModalOpen(false)}
         onSubmitSuccess={handleSubmitSuccess}
+      />
 
+      {/* Modal Detail */}
+      <BienCheDetailModal
+        bienCheId={selectedDetailId}
+        onClose={() => setSelectedDetailId(null)}
+      />
+
+      {/* Modal Export Detail */}
+      <ExportExcelModal
+        show={showExport}
+        onClose={() => setShowExport(false)}
+        linhVucs={linhVucs}
+        khois={khois}
+        onExport={handleExport}
       />
     </>
   )

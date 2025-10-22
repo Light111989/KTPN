@@ -1,10 +1,14 @@
+using System;
+using System.ComponentModel.DataAnnotations;
 
-using System.Text.Json.Serialization;
-using API.Domain;
+namespace API.Domain;
 
-public class BienCheDto
+public class BienCheHistory
 {
+    [Key]
     public Guid Id { get; set; }
+
+    public Guid BienCheId { get; set; }   // FK sang BienChe
     public string TenDonVi { get; set; }
     public byte SLVienChuc { get; set; }
     public byte SLHopDong { get; set; }
@@ -14,12 +18,12 @@ public class BienCheDto
     public byte SLGiaoVien { get; set; }
     public byte SLQuanLy { get; set; }
     public byte SLNhanVien { get; set; }
-    [JsonPropertyName("slHD111")]
-    public int SLHD111 { get; set; }
+    public byte SLHD111 { get; set; }
     public DateTime EffectiveDate { get; set; }
 
-    public Guid KhoiId { get; set; }
-    public string? TenKhoi { get; set; }
-    public Guid LinhVucId { get; set; }
-    public string? TenLinhVuc { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+    // Quan hệ
+    public BienChe BienChe { get; set; }
 }
+

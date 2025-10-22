@@ -1,5 +1,6 @@
 using System;
 using API.Data;
+using API.Domain;
 using MediatR;
 
 namespace API.Handlers.BienCheListing;
@@ -21,6 +22,7 @@ public class Update
         public byte SLQuanLy { get; set; }
         public byte SLNhanVien { get; set; }
         public byte SLHD111 { get; set; }
+        public DateTime EffectiveDate { get; set; }
     }
     public class Validator // Optionally implement validation logic here
     {
@@ -43,6 +45,25 @@ public class Update
             {
                 throw new InvalidOperationException($"List with ID {res.Id} not found.");
             }
+            var history = new BienCheHistory
+            {
+                Id = Guid.NewGuid(),
+                BienCheId = bienche.Id,
+                TenDonVi = bienche.TenDonVi,
+                SLVienChuc = bienche.SLVienChuc,
+                SLHopDong = bienche.SLHopDong,
+                SLHopDongND = bienche.SLHopDongND,
+                SLBoTri = bienche.SLBoTri,
+                SoQuyetDinh = bienche.SoQuyetDinh,
+                SLGiaoVien = bienche.SLGiaoVien,
+                SLQuanLy = bienche.SLQuanLy,
+                SLNhanVien = bienche.SLNhanVien,
+                SLHD111 = bienche.SLHD111,
+                EffectiveDate = bienche.EffectiveDate,
+                CreatedAt = DateTime.Now
+            };
+
+            _context.BienCheHistories.Add(history);
 
             bienche.LinhVucId = res.LinhVucId ?? throw new ArgumentException("LinhVucId is required.");
             bienche.KhoiId = res.KhoiId;
@@ -56,6 +77,7 @@ public class Update
             bienche.SLQuanLy = res.SLQuanLy;
             bienche.SLNhanVien = res.SLNhanVien;
             bienche.SLHD111 = res.SLHD111;
+            bienche.EffectiveDate = res.EffectiveDate;
 
             await _context.SaveChangesAsync(cancellationToken);
         }

@@ -19,6 +19,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Khoi> Khois { get; set; }
     public DbSet<LinhVuc> LinhVucs { get; set; }
     public DbSet<Test> Tests { get; set; }
+    public DbSet<BienCheHistory> BienCheHistories { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -34,6 +35,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
           .HasForeignKey(e => e.KhoiId)
           .OnDelete(DeleteBehavior.Restrict);
 });
+
+
+        modelBuilder.Entity<BienCheHistory>()
+               .HasOne(h => h.BienChe)
+               .WithMany()
+               .HasForeignKey(h => h.BienCheId);
+
 
         modelBuilder.Entity<Khoi>(entity =>
 {
