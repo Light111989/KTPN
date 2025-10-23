@@ -9,6 +9,8 @@ export type DonVi = {
   slGiaoVien: number
   slQuanLy: number
   slNhanVien: number
+  slHD111: number
+  effectiveDate : Date
 
   // enrich thêm từ tree
   khoiId: string

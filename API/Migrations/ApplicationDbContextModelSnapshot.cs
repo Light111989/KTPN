@@ -109,6 +109,9 @@ namespace API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("EffectiveDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<Guid>("KhoiId")
                         .HasColumnType("uniqueidentifier");
 
@@ -119,6 +122,9 @@ namespace API.Migrations
                         .HasColumnType("tinyint");
 
                     b.Property<byte>("SLGiaoVien")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("SLHD111")
                         .HasColumnType("tinyint");
 
                     b.Property<byte>("SLHopDong")
@@ -152,6 +158,60 @@ namespace API.Migrations
                     b.HasIndex("LinhVucId");
 
                     b.ToTable("BienChes");
+                });
+
+            modelBuilder.Entity("API.Domain.BienCheHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BienCheId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("EffectiveDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte>("SLBoTri")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("SLGiaoVien")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("SLHD111")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("SLHopDong")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("SLHopDongND")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("SLNhanVien")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("SLQuanLy")
+                        .HasColumnType("tinyint");
+
+                    b.Property<byte>("SLVienChuc")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("SoQuyetDinh")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TenDonVi")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BienCheId");
+
+                    b.ToTable("BienCheHistories");
                 });
 
             modelBuilder.Entity("API.Domain.Company", b =>
@@ -489,6 +549,17 @@ namespace API.Migrations
                     b.Navigation("Khoi");
 
                     b.Navigation("LinhVuc");
+                });
+
+            modelBuilder.Entity("API.Domain.BienCheHistory", b =>
+                {
+                    b.HasOne("API.Domain.BienChe", "BienChe")
+                        .WithMany()
+                        .HasForeignKey("BienCheId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BienChe");
                 });
 
             modelBuilder.Entity("API.Domain.Contact", b =>

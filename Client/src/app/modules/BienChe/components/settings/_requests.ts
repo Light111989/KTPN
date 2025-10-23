@@ -8,6 +8,11 @@ export function fetchDonVis(page: number, pageSize: number) {
   return axios.post(`${API_URL}/BienChes/listing?page=${page}&pageSize=${pageSize}`)
 
 }
+// get data details
+export function fetchDonViDetail(bienCheId: string) {
+  return axios.get(`${API_URL}/BienChes/${bienCheId}/detail`)
+
+}
 
 export const deleteDonVi = async (id: string | number) => {
   return axios.delete(`${API_URL}/BienChes/${id}`)
@@ -42,7 +47,27 @@ export function fetchKhois() {
   return axios.post(`${API_URL}/Khois/listing?`)
 }
 
-export const searchBienChes = async (filters: {tenDonVi?: string; khoiId?: string; linhVucId?: string}) => {
+export const searchBienChes = async (filters: { tenDonVi?: string; khoiId?: string; linhVucId?: string; effectiveDate: string }) => {
   const res = await axios.get(`${API_URL}/BienChes/search`, { params: filters });
-   return res.data;
+  return res.data;
 };
+
+export async function exportExcel(filters?: any) {
+  const response = await axios.post(
+    `${API_URL}/BienChes/export-excel`,
+    filters ?? {},   // luôn là object
+    {
+      headers: { "Content-Type": "application/json" },
+      responseType: "blob"
+    }
+  );
+
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", `BienChe_${new Date().getTime()}.xlsx`);
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}
+

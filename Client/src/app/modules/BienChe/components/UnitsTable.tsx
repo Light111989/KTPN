@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react'
+import { Button } from 'react-bootstrap'
 import {
   useTable,
   useExpanded,
@@ -33,10 +34,11 @@ export type BienChe = {
   slGiaoVien: number
   slQuanLy: number
   slNhanVien: number
+  slHD111: number
+  effectiveDate: Date
   khoiId: string
   linhVucId: string
 }
-
 
 // ------------------- Helper type -------------------
 type ExpandedRow<T extends object> = Row<T> & UseExpandedRowProps<T>
@@ -48,12 +50,17 @@ type UnitsTableProps = {
   page: number
   pageSize: number
   onPageChange: (page: number) => void
-  onDelete: (id: string) => void // 👈 chỉ nhận id Biên chế
-  onUpdate: (record: any) => void
-  onAddClick?: () => void
+  onDelete: (id: string) => void
+  onUpdate: (record: BienChe) => void
+  setSelectedId: (id: string) => void
 }
 
-const UnitsTable: React.FC<UnitsTableProps> = ({ data, onDelete, onUpdate }) => {
+const UnitsTable: React.FC<UnitsTableProps> = ({
+  data,
+  onDelete,
+  onUpdate,
+  setSelectedId,
+}) => {
   const columns: Column<LinhVuc>[] = useMemo(
     () => [
       {
@@ -71,14 +78,21 @@ const UnitsTable: React.FC<UnitsTableProps> = ({ data, onDelete, onUpdate }) => 
     ],
     []
   )
+
   const memoData = useMemo(() => data, [data])
   const tableInstance = useTable<LinhVuc>(
     {
       columns,
       data: memoData,
+      initialState: {
+        expanded: Object.fromEntries(
+          memoData.map((_, i) => [i, true]) // mở tất cả các row
+        ),
+      },
     } as TableOptions<LinhVuc> & UseExpandedOptions<LinhVuc>,
     useExpanded
   )
+
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     tableInstance
@@ -86,10 +100,10 @@ const UnitsTable: React.FC<UnitsTableProps> = ({ data, onDelete, onUpdate }) => 
   return (
     <table {...getTableProps()} className="table table-bordered">
       <thead>
-        {headerGroups.map((hg) => (
-          <tr {...hg.getHeaderGroupProps()}>
-            {hg.headers.map((col) => (
-              <th {...col.getHeaderProps()}>
+        {headerGroups.map(hg => (
+          <tr {...hg.getHeaderGroupProps()} key={hg.id}>
+            {hg.headers.map(col => (
+              <th {...col.getHeaderProps()} key={col.id}>
                 {col.render('Header')}
               </th>
             ))}
@@ -97,23 +111,23 @@ const UnitsTable: React.FC<UnitsTableProps> = ({ data, onDelete, onUpdate }) => 
         ))}
       </thead>
       <tbody {...getTableBodyProps()}>
-        {rows.map((row) => {
+        {rows.map(row => {
           prepareRow(row)
           const r = row as ExpandedRow<LinhVuc>
           return (
             <React.Fragment key={r.original.id}>
               <tr {...r.getRowProps()}>
-                {r.cells.map((cell) => (
-                  <td {...cell.getCellProps()}>
+                {r.cells.map(cell => (
+                  <td {...cell.getCellProps()} key={cell.column.id}>
                     {cell.render('Cell')}
                   </td>
                 ))}
               </tr>
 
               {r.isExpanded && (
-                <tr>
+                <tr key={`${r.original.id}-expanded`}>
                   <td colSpan={r.cells.length}>
-                    {r.original.khois.map((khoi) => {
+                    {r.original.khois.map(khoi => {
                       const totals = {
                         slVienChuc: khoi.bienChes.reduce((sum, bc) => sum + bc.slVienChuc, 0),
                         slHopDong: khoi.bienChes.reduce((sum, bc) => sum + bc.slHopDong, 0),
@@ -122,20 +136,18 @@ const UnitsTable: React.FC<UnitsTableProps> = ({ data, onDelete, onUpdate }) => 
                         slGiaoVien: khoi.bienChes.reduce((sum, bc) => sum + bc.slGiaoVien, 0),
                         slQuanLy: khoi.bienChes.reduce((sum, bc) => sum + bc.slQuanLy, 0),
                         slNhanVien: khoi.bienChes.reduce((sum, bc) => sum + bc.slNhanVien, 0),
+                        slHD111: khoi.bienChes.reduce((sum, bc) => sum + bc.slHD111, 0),
                       }
 
                       return (
                         <div key={khoi.id} className="mb-3">
                           <h6>
-                            {khoi.tenKhoi} &nbsp;
+                            {khoi.tenKhoi}{' '}
                             <small className="text-muted">
-                              (Viên chức: {totals.slVienChuc},
-                              Hợp đồng: {totals.slHopDong},
-                              HĐND: {totals.slHopDongND},
-                              Bố trí: {totals.slBoTri},
-                              GV: {totals.slGiaoVien},
-                              QL: {totals.slQuanLy},
-                              NV: {totals.slNhanVien})
+                              (VC: {totals.slVienChuc}, HĐ: {totals.slHopDong}, HĐND:{' '}
+                              {totals.slHopDongND}, Bố trí: {totals.slBoTri}, GV:{' '}
+                              {totals.slGiaoVien}, QL: {totals.slQuanLy}, NV:{' '}
+                              {totals.slNhanVien}, HD111: {totals.slHD111})
                             </small>
                           </h6>
 
@@ -143,6 +155,7 @@ const UnitsTable: React.FC<UnitsTableProps> = ({ data, onDelete, onUpdate }) => 
                             <thead>
                               <tr>
                                 <th>Tên đơn vị</th>
+                                <th>Thời Gian QĐ</th>
                                 <th>SL Viên chức</th>
                                 <th>SL Hợp đồng</th>
                                 <th>SL Hợp đồng ND</th>
@@ -151,12 +164,15 @@ const UnitsTable: React.FC<UnitsTableProps> = ({ data, onDelete, onUpdate }) => 
                                 <th>SL Giáo viên</th>
                                 <th>SL Quản lý</th>
                                 <th>SL Nhân viên</th>
+                                <th>SL HĐ 111</th>
+                                <th>Thao tác</th>
                               </tr>
                             </thead>
                             <tbody>
-                              {khoi.bienChes.map((bc) => (
+                              {khoi.bienChes.map(bc => (
                                 <tr key={bc.id}>
                                   <td>{bc.tenDonVi}</td>
+                                  <td>{new Date(bc.effectiveDate).toLocaleDateString()}</td>
                                   <td>{bc.slVienChuc}</td>
                                   <td>{bc.slHopDong}</td>
                                   <td>{bc.slHopDongND}</td>
@@ -165,23 +181,38 @@ const UnitsTable: React.FC<UnitsTableProps> = ({ data, onDelete, onUpdate }) => 
                                   <td>{bc.slGiaoVien}</td>
                                   <td>{bc.slQuanLy}</td>
                                   <td>{bc.slNhanVien}</td>
+                                  <td>{bc.slHD111}</td>
                                   <td>
-                                    <button
-                                      className="btn btn-icon btn-primary fa-solid fa-trash fs-8 me-4"
+                                    <Button
+                                      size="sm"
+                                      variant="danger"
+                                      className="me-2"
                                       onClick={() => onDelete(bc.id)}
                                     >
-                                    </button>
-                                    <button
-                                      className="btn btn-icon btn-success fa-solid fa-pencil fs-8 me-4"
+                                      <i className="fa-solid fa-trash"></i>
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="success"
+                                      className="me-2"
                                       onClick={() => onUpdate(bc)}
                                     >
-                                    </button>
+                                      <i className="fa-solid fa-pencil"></i>
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="info"
+                                      onClick={() => setSelectedId(bc.id)}
+                                    >
+                                      <i className="fa-solid fa-eye"></i>
+                                    </Button>
                                   </td>
                                 </tr>
                               ))}
-                              {/* Hàng tổng cuối bảng */}
-                              <tr className="fw-bold table-light ">
+
+                              <tr className="fw-bold table-light">
                                 <td>Tổng</td>
+                                <td>-</td>
                                 <td>{totals.slVienChuc}</td>
                                 <td>{totals.slHopDong}</td>
                                 <td>{totals.slHopDongND}</td>
@@ -190,6 +221,8 @@ const UnitsTable: React.FC<UnitsTableProps> = ({ data, onDelete, onUpdate }) => 
                                 <td>{totals.slGiaoVien}</td>
                                 <td>{totals.slQuanLy}</td>
                                 <td>{totals.slNhanVien}</td>
+                                <td>{totals.slHD111}</td>
+                                <td>-</td>
                               </tr>
                             </tbody>
                           </table>
@@ -199,12 +232,10 @@ const UnitsTable: React.FC<UnitsTableProps> = ({ data, onDelete, onUpdate }) => 
                   </td>
                 </tr>
               )}
-
             </React.Fragment>
           )
         })}
       </tbody>
-
     </table>
   )
 }

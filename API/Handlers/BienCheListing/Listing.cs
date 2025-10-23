@@ -17,7 +17,7 @@ public class Listing
     public class ListBienChesQuery : IRequest<BienChePaging>
     {
         public int Page { get; set; } = 1;
-        public int PageSize { get; set; } = 5;
+        public int PageSize { get; set; } = 100;
     }
     public class Validator // Optionally implement validation logic here
     {
@@ -60,6 +60,8 @@ public class Listing
                                 SLGiaoVien = b.SLGiaoVien,
                                 SLQuanLy = b.SLQuanLy,
                                 SLNhanVien = b.SLNhanVien,
+                                SLHD111 = b.SLHD111,
+                                EffectiveDate = b.EffectiveDate,
                                 KhoiId = b.KhoiId,
                                 LinhVucId = b.LinhVucId
                             }).ToList()
