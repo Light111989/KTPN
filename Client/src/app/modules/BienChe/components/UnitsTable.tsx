@@ -84,9 +84,15 @@ const UnitsTable: React.FC<UnitsTableProps> = ({
     {
       columns,
       data: memoData,
+      initialState: {
+        expanded: Object.fromEntries(
+          memoData.map((_, i) => [i, true]) // mở tất cả các row
+        ),
+      },
     } as TableOptions<LinhVuc> & UseExpandedOptions<LinhVuc>,
     useExpanded
   )
+
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     tableInstance

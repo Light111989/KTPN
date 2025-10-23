@@ -306,6 +306,7 @@ public class BienChesController : BaseController
             ws.Column("K").Width = 9;   // Nhân viên
             ws.Column("L").Width = 8;   // HĐ111
             ws.Column("M").Width = 12;  // Cột cuối (so sánh)
+            ws.Column("N").Width = 14;  // Ngày QĐ
 
             // Set ROW HEIGHT (tùy chỉnh)
             ws.Row(3).Height = 40;
@@ -347,9 +348,10 @@ public class BienChesController : BaseController
 
             // Right-most comparison column
             ws.Range("M2:M4").Merge().Value = "Số giao đầu năm so với số hiện tại\n6 so 4";
+            ws.Range("N2:N4").Merge().Value = "Ngày Quyết Định";
 
             // Style header region
-            var headerRange = ws.Range("A2:M4");
+            var headerRange = ws.Range("A2:N4");
             headerRange.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
             headerRange.Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
             headerRange.Style.Font.SetBold();
@@ -373,7 +375,6 @@ public class BienChesController : BaseController
             int grandTotals_slQuanLy = 0;
             int grandTotals_slNhanVien = 0;
             int grandTotals_slHD111 = 0;
-
             foreach (var lv in items)
             {
                 sttLinhVuc++;
@@ -405,6 +406,7 @@ public class BienChesController : BaseController
                 ws.Cell(currentRow, 10).Value = sumQL;
                 ws.Cell(currentRow, 11).Value = sumNV;
                 ws.Cell(currentRow, 12).Value = sumHD111;
+
 
                 // add to grand totals
                 grandTotals_slVienChuc += sumVien;
@@ -464,6 +466,8 @@ public class BienChesController : BaseController
                         ws.Cell(currentRow, 10).Value = bc.SLQuanLy;
                         ws.Cell(currentRow, 11).Value = bc.SLNhanVien;
                         ws.Cell(currentRow, 12).Value = bc.SLHD111;
+                        ws.Cell(currentRow, 14).Value = bc.EffectiveDate;
+                        ws.Cell(currentRow, 14).Style.DateFormat.Format = "dd/MM/yyyy";
 
                         // action columns or blank columns (L, M) can be left blank or filled if required
                         currentRow++;
